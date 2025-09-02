@@ -17,7 +17,7 @@ echo "--- 2. Applying Argo CD Ingress Manifest ---"
 envsubst < ./manifests/argocd-ingress.yaml.tpl | kubectl apply -f -
 echo "Waiting for Cert-Manager to issue certificate for ${ARGOCD_FQDN}..."
 sleep 15 # Give the ingress controller a moment to process the new resource
-kubectl wait --for=condition=ready certificate -n "${ARGOCD_NAMESPACE}" argocd-tls-cert --timeout=300s
+kubectl wait --for=condition=ready certificate -n "${ARGOCD_NAMESPACE}" argocd-tls-prod --timeout=300s
 
 echo "--- 3. Annotating Argo CD Service Account for Workload Identity ---"
 kubectl annotate serviceaccount argocd-server -n "${ARGOCD_NAMESPACE}" \
