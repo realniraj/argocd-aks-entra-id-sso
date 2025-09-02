@@ -25,6 +25,7 @@ az ad group delete --group "${ENTRA_READONLY_GROUP_NAME}"
 echo "--- 3. Deleting Azure Resource Group: ${RESOURCE_GROUP} ---"
 # This will delete the AKS cluster and all associated resources.
 az group delete --name "${RESOURCE_GROUP}" --yes --no-wait
-
+# remove generated-variables.sh file. 
+rm -f ./scripts/generated-variables.sh
 echo "✅ Cleanup process initiated. It may take several minutes for the resource group to be fully deleted in Azure."
 
