@@ -20,6 +20,7 @@ az aks create \
   --name "${CLUSTER_NAME}" \
   --node-count 2 \
   --enable-aad \
+  --enable-oidc-issuer \
   --enable-workload-identity \
   --generate-ssh-keys -o none
 

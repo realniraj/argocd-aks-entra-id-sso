@@ -11,9 +11,11 @@ source ./env.sh
 echo "--- 1. Installing NGINX Ingress Controller ---"
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo update
+
 helm install ingress-nginx ingress-nginx/ingress-nginx \
   --create-namespace \
-  --namespace "${INGRESS_NAMESPACE}"
+  --namespace "${INGRESS_NAMESPACE}" \
+  --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path"=/healthz
 
 echo "--- 2. Installing Cert-Manager ---"
 helm install \
@@ -26,7 +28,6 @@ helm install \
 echo "--- 3. Installing Argo CD ---"
 kubectl create namespace "${ARGOCD_NAMESPACE}"
 kubectl apply -n "${ARGOCD_NAMESPACE}" -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-
 echo "--- Waiting for Ingress IP Address... ---"
 # Loop until the ingress controller gets a public IP
 while true; do
