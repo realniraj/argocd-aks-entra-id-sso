@@ -61,7 +61,14 @@ AKS_OIDC_ISSUER=$(az aks show --name "${CLUSTER_NAME}" -g "${RESOURCE_GROUP}" --
 az ad app federated-credential create --id "${APP_ID}" --parameters \
 "{\"name\": \"argocd-server-federated-cred\", \"issuer\": \"${AKS_OIDC_ISSUER}\", \"subject\": \"system:serviceaccount:${ARGOCD_NAMESPACE}:argocd-server\", \"audiences\": [\"api://AzureADTokenExchange\"]}" -o none
 
-echo "--- 8. Configuring Token Group Claims for Argo CD App ---"
+echo "--- 8. Granting API Permissions and Admin Consent ---"
+# Grant User.Read permission to allow Argo CD to read user profile information
+az ad app permission add --id "${APP_ID}" --api 00000003-0000-0000-c000-000000000000 --api-permissions e1fe6dd8-ba31-4d61-89e7-88639da4683d=Scope
+# Grant admin consent to suppress the user consent prompt on first login
+az ad app permission admin-consent --id "${APP_ID}"
+echo "Admin consent granted for User.Read permission."
+
+echo "--- 9. Configuring Token Group Claims for Argo CD App ---"
 az ad app update --id "${APP_ID}" --set groupMembershipClaims=SecurityGroup -o none
 
 # Persist dynamic variables for subsequent scripts

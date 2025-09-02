@@ -24,7 +24,11 @@ kubectl annotate serviceaccount argocd-server -n "${ARGOCD_NAMESPACE}" \
   "azure.workload.identity/client-id=${APP_ID}" \
   "azure.workload.identity/tenant-id=${TENANT_ID}" --overwrite
 
-echo "--- 4. Patching Argo CD ConfigMaps with OIDC and RBAC settings ---"
+echo "--- 4. Patching Argo CD Server Deployment for Workload Identity Reliability ---"
+# This label explicitly tells the webhook to inject the identity, preventing potential race conditions.
+kubectl patch deployment argocd-server -n "${ARGOCD_NAMESPACE}" -p '{"spec":{"template":{"metadata":{"labels":{"azure.workload.identity/use":"true"}}}}}'
+
+echo "--- 5. Patching Argo CD ConfigMaps with OIDC and RBAC settings ---"
 # Create a temporary patch file from the template for argocd-cm
 envsubst < ./manifests/argocd-cm.yaml.tpl > ./manifests/argocd-cm.yaml.tmp
 # Patch the live ConfigMap using the temporary file
@@ -39,7 +43,7 @@ kubectl patch configmap argocd-rbac-cm -n "${ARGOCD_NAMESPACE}" --patch-file ./m
 # Clean up the temporary file
 rm ./manifests/argocd-rbac-cm.yaml.tmp
 
-echo "--- 5. Restarting Argo CD Server to apply changes ---"
+echo "--- 6. Restarting Argo CD Server to apply changes ---"
 kubectl rollout restart deployment argocd-server -n "${ARGOCD_NAMESPACE}"
 kubectl rollout status deployment argocd-server -n "${ARGOCD_NAMESPACE}"
 
@@ -50,4 +54,3 @@ echo "--- Optional Next Step: Disable Local Admin User ---"
 echo "Once you have verified that SSO login is working, you can harden your installation by disabling the local 'admin' user."
 echo "To do this, run the following command:"
 echo "kubectl patch cm argocd-cm -n ${ARGOCD_NAMESPACE} -p '{\"data\":{\"admin.enabled\":\"false\"}}' && kubectl rollout restart deployment argocd-server -n ${ARGOCD_NAMESPACE}"
-

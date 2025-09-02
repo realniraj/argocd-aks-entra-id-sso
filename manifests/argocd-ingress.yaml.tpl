@@ -6,7 +6,7 @@ metadata:
   namespace: ${ARGOCD_NAMESPACE}
   annotations:
     # 1. Tell Cert-Manager to use our production issuer
-    cert-manager.io/cluster-issuer: letsencrypt-prod
+    cert-manager.io/cluster-issuer: ${CLUSTER_ISSUER_NAME}
     # 2. Enable backend TLS for Argo CD's gRPC backend
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
 spec:
