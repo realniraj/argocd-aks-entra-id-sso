@@ -16,7 +16,7 @@ spec:
   tls:
   - hosts:
     - ${ARGOCD_FQDN}
-    secretName: argocd-tls-prod # Cert-Manager will create this secret
+    secretName: ${ARGOCD_NAMESPACE}-cert # Cert-Manager will create this secret
   # 5. Define routing rules
   rules:
   - host: ${ARGOCD_FQDN}

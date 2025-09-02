@@ -40,6 +40,9 @@ echo "--- 4. Getting AKS Credentials ---"
 # This will configure kubectl to use the AAD login flow.
 az aks get-credentials --resource-group "${RESOURCE_GROUP}" --name "${CLUSTER_NAME}" --overwrite-existing
 kubelogin convert-kubeconfig -l azurecli
+# logging out and log back in to ensure new group membership for the current user is updated in the token
+az logout
+az login --use-device-code
 
 echo "--- 5. Creating Entra ID App Registration for Argo CD: ${ENTRA_APP_DISPLAY_NAME} ---"
 APP_ID=$(az ad app create \
