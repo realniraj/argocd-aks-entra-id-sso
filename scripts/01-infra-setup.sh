@@ -29,6 +29,7 @@ az aks create \
   --resource-group "${RESOURCE_GROUP}" \
   --name "${CLUSTER_NAME}" \
   --node-count 2 \
+  --node-vm-size Standard_D2s_v6 \
   --enable-aad \
   --enable-oidc-issuer \
   --aad-admin-group-object-ids "${AKS_ADMIN_GROUP_ID}" \
@@ -45,11 +46,12 @@ az logout
 az login --use-device-code
 
 echo "--- 5. Creating Entra ID App Registration for Argo CD: ${ENTRA_APP_DISPLAY_NAME} ---"
-APP_ID=$(az ad app create \
+az ad app create \
   --display-name "${ENTRA_APP_DISPLAY_NAME}" \
   --web-redirect-uris "https://${ARGOCD_FQDN}/auth/callback" \
-  --public-client-redirect-uris "http://localhost:8085/auth/callback" \
-  --query appId -o tsv)
+  --public-client-redirect-uris "http://localhost:8085/auth/callback" 
+  
+APP_ID=$(az ad app list --display-name $ENTRA_APP_DISPLAY_NAME --query "[0].appId" -o tsv)
 
 echo "--- 6. Creating Entra ID Groups for Argo CD Roles ---"
 az ad group create --display-name "${ENTRA_ADMIN_GROUP_NAME}" --mail-nickname "${ENTRA_ADMIN_GROUP_NAME}" -o none
